@@ -28,13 +28,39 @@ func init() {
 func main() {
 	flag.Parse()
 
-	src, dst := io.Reader(os.Stdin), io.Writer(os.Stdout)
+	src, err := terminalInputs(os.Stdin, flag.Args())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	dst := io.Writer(os.Stdout)
+
 	delay := bePatient(*bits, *initial, *step)
 	if *debug {
 		dst = ioutil.Discard
 		delay = printImpatiently(os.Stdout, delay)
 	}
+
 	copyRunesWithPatience(dst, src, delay)
+}
+
+func terminalInputs(src *os.File, fallbacks []string) (io.Reader, error) {
+	if stat, _ := src.Stat(); stat.Mode()&os.ModeCharDevice == 0 {
+		return os.Stdin, nil
+	}
+
+	var rdrs []io.Reader
+	for _, filename := range fallbacks {
+		f, err := os.Open(filename)
+		if err != nil {
+			if pathErr, isPathErr := err.(*os.PathError); isPathErr {
+				return nil, fmt.Errorf("error opening %s: %s", filename, pathErr.Err)
+			}
+			return nil, fmt.Errorf("error opening %s: %s", filename, err)
+		}
+		rdrs = append(rdrs, f)
+	}
+	return io.MultiReader(rdrs...), nil
 }
 
 // a func that determines how long to wait
