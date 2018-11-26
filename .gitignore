@@ -1,0 +1,12 @@
+*~
+*.swp
+.netrwhist
+*.o
+*.so
+*.class
+.DS_Store
+.DS_Store?
+.Trash-*
+
+aslap
+tmp/
