@@ -11,4 +11,6 @@
 `aslap` is like `cat`, but it slows down output proportional to the unicode
 character being printed.
 
+[![asciicast](https://asciinema.org/a/213687.svg)](https://asciinema.org/a/213687)
+
 Apologies to John Cage and the Long Now Foundation.
